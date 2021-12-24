@@ -1,4 +1,4 @@
-package com.paypay.ems;
+package com.aiamadeus.ems;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
