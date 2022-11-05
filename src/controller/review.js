@@ -23,4 +23,15 @@ router.put('/:id', async (request, response) => {
     });
 
 });
+router.patch('/:rid', async (request, response) => {
+    const data = await db.collection('review').findOneAndUpdate(
+        { rid: request.params.rid },
+        { $set: { completed: true } },
+        { upsert: true }
+    );
+    response.status(200).json({
+        rspCde: 0,
+        rspMsg: 'Updated successfully'
+    })
+})
 module.exports = router;
