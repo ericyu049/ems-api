@@ -4,6 +4,7 @@ const { MongoClient } = require("mongodb");
 const url = 'mongodb://192.168.1.57:27017/';
 const client = new MongoClient(url);
 const db = client.db('emsv2');
+const jwtUtil = require('../util/jwtUtil').jwtUtil;
 
 // Get all employees
 router.get('/', async (request, response) => {
@@ -41,5 +42,15 @@ router.post('/delete', async (request, response) => {
         rspMsg: 'Deleted successfully.'
     });
 })
-
+router.post('/myInfo', jwtUtil.authenticationMiddleware, async (request, response) => {
+    if (response.locals.user.id) {
+        const data = await db.collection('employee').find({id: response.locals.user.id}).toArray();
+        response.status(200).json({
+            rspCde: 0,
+            rspMsg: 'Success.',
+            info: data[0]
+        });
+    }
+    else return response.status(403);
+})
 module.exports = router;

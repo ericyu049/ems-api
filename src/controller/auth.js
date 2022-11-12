@@ -37,7 +37,6 @@ router.post('/isLoggedin', jwtUtil.authenticationMiddleware, (request, response)
     }
 });
 router.post('/isAdmin', jwtUtil.authenticationMiddleware, (request, response) => {
-    console.log(response.locals.user.role);
     if (response.locals.user.role.includes('Manager')) {
         response.status(200).json({ rspCde: 0, rspMsg: 'User has admin access' });
         return;

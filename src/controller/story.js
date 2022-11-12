@@ -4,6 +4,7 @@ const { MongoClient } = require("mongodb");
 const url = 'mongodb://192.168.1.57:27017/';
 const client = new MongoClient(url);
 const db = client.db('emsv2');
+const jwtUtil = require('../util/jwtUtil').jwtUtil;
 
 // Get all storys with params
 router.get('/', async (request, response) => {
@@ -22,6 +23,18 @@ router.get('/:id', async (request, response) => {
         rspMsg: 'Success.',
         stories: data
     });
+});
+//get assigned stories
+router.post('/getUserStory', jwtUtil.authenticationMiddleware, async (request, response) => {
+    if (response.locals.user.id) {
+        const data = await db.collection('story').find({ "employee.id" : response.locals.user.id }).toArray();
+        response.status(200).json({
+            rspCde: 0,
+            rspMsg: 'Success.',
+            stories: data
+        });
+    }
+    else return response.status(403);
 });
 router.put('/', async (request, response) => {
     const result = await db.collection('story').insertOne(request.body)
