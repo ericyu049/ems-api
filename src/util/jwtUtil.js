@@ -4,6 +4,7 @@ const crypto = require ('crypto');
 const ALIVE_TIME = 15 * 60;
 const REFRESH_TIME = '7d';
 const JWT_SECRETKEY = 'xH3nGhXtTs2b2sydVWJpxJBm';
+const blackList = [];
 
 function generateToken(user) {
     console.log('Generating token. User detail: ', user);
@@ -48,6 +49,7 @@ function genKey(id, password) {
 function authenticationMiddleware(request, response, nextHandler) {
     const accessToken = getAccessTokenFromHeader(request, 'ems.auth');
     try {
+        if (blackList.find(token => token === accessToken)) throw new Error('Unauthorized');
         const tokenPayload = jwt.verify(accessToken, JWT_SECRETKEY);
         if (tokenPayload.type !== 'access') throw new Error('wrong token type');
         response.locals.user = tokenPayload;
@@ -69,8 +71,14 @@ function refreshTokenMiddleware(request, response, nextHandler) {
         response.status(401).send(error.message);
     }
 }
+function logoutMiddleware(request, response, nextHandler) {
+    const accessToken = getAccessTokenFromHeader(request, 'ems.auth');
+    blackList.push(accessToken);
+    nextHandler();
+}
 function getAccessTokenFromHeader(request, type) {
     const map = new Map();
+    if (!request.headers.cookie) return;
     request.headers.cookie.split(';').forEach(cookie => {
         const temp = cookie.split('=');
         const key = temp[0];
@@ -79,4 +87,4 @@ function getAccessTokenFromHeader(request, type) {
     });
     return map.get(type);
 }
-exports.jwtUtil = { generateToken, getRefreshToken, authenticationMiddleware, refreshTokenMiddleware };
+exports.jwtUtil = { generateToken, getRefreshToken, authenticationMiddleware, refreshTokenMiddleware, logoutMiddleware };

@@ -46,8 +46,8 @@ router.post('/isAdmin', jwtUtil.authenticationMiddleware, (request, response) =>
         return;
     }
 });
-router.post('/logout', async (request, response) => {
-
+router.post('/logout', jwtUtil.logoutMiddleware, async (request, response) => {
+    response.status(200).json({rspCde: 0, rspMsg: 'Logged out.'});
 });
 router.post('/refreshToken', jwtUtil.refreshTokenMiddleware, async (request, response) => {
     const refreshToken = request.body.refreshToken;
